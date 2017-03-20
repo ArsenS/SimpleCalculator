@@ -14,7 +14,7 @@ public class ArithmeticExpressionParser {
     
     ArithmeticExpressionParser() {};
     
-    public double parseAndEvaluate(LinkedList<String> expressionTokens) {
+    public double parseAndEvaluate(LinkedList<String> expressionTokens) throws InvalidExpressionException {
         
         double value;
         
@@ -33,11 +33,17 @@ public class ArithmeticExpressionParser {
         this.tokensList = expressionTokens;
     }
     
-    private double evaluateExpression() {
+    private double evaluateExpression() throws InvalidExpressionException {
         
         double value;
+        boolean valueIsNegative = this.tokensList.peek().equals("-");
+        if (valueIsNegative) {
+            this.tokensList.poll();
+        }
         value = evaluateTerm();
-        System.out.println(tokensList.peek());
+        if (valueIsNegative) {
+            value = -value;
+        }
         while (tokensList.peek() != null && (tokensList.peek().equals("+") || tokensList.peek().equals("-"))) {
             String operator = this.tokensList.poll();
             double nextValue = evaluateTerm();
@@ -45,15 +51,13 @@ public class ArithmeticExpressionParser {
                 value += nextValue;
             } else if (operator.equals("-")) {
                 value -= nextValue;
-            } else {
-                //error handling
             }
         }
 
         return value;
     }
     
-    private double evaluateTerm() {
+    private double evaluateTerm() throws InvalidExpressionException {
    
         double value;
         value = evaluateFactor();
@@ -64,26 +68,29 @@ public class ArithmeticExpressionParser {
                  value *= nextValue;
              } else if (operator.equals("/")) {
                  value /= nextValue;
-             } else {
-                 //error handling
              }
         }
-
        return value;
    } 
    
-    private double evaluateFactor() {
+    private double evaluateFactor() throws InvalidExpressionException, NumberFormatException {
        
         double value;       
         String next = this.tokensList.poll();
         if (next.equals("(")) {
             value = evaluateExpression();
-            next = this.tokensList.poll();
-            if (!next.equals(")")) {
-                //error handling
+            if (this.tokensList.peek() == null || !this.tokensList.peek().equals(")")) {
+                throw new InvalidExpressionException("Missing right parenthesis");
+            } else {
+                this.tokensList.poll();
             }
         } else {
-            value = Double.parseDouble(next);
+            try {
+                value = Double.parseDouble(next);
+            } catch (NumberFormatException e) {
+                throw new InvalidExpressionException("Invalid expression");
+            }
+            
         }
         return value;
    }
@@ -91,12 +98,18 @@ public class ArithmeticExpressionParser {
     public static void main(String[] args) {
         Tokenizer testTokenizer = new Tokenizer();
         
-        String testExpression = "(4*3)+8/(7-3)";
+        String testExpression = "-4*3+8/(7-3)";
         //String testExpression = "(4*32)+8";
         LinkedList<String> testTokens = testTokenizer.splitIntoTokens(testExpression);
         System.out.println(testTokens);
         ArithmeticExpressionParser parser = new ArithmeticExpressionParser();
-        parser.parseAndEvaluate(testTokens);
+        try {
+            parser.parseAndEvaluate(testTokens);
+        } catch (InvalidExpressionException e) {
+            System.out.println(e.getMessage());
+        }
+        
+        
         System.out.println(testTokens);
        
    }
