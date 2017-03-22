@@ -87,6 +87,7 @@ public class ArithmeticExpressionParser {
         } else {
             try {
                 if (tokensList.peek() != null && tokensList.peek().equals(".")) {
+                    //check for floating point number and adjust accordingly
                     next += tokensList.poll()+tokensList.poll();
                 }
                 value = Double.parseDouble(next);
@@ -96,25 +97,5 @@ public class ArithmeticExpressionParser {
             
         }
         return value;
-   }
-   
-    public static void main(String[] args) {
-        Tokenizer testTokenizer = new Tokenizer();
-        
-        String testExpression = "18.0+2";
-        //String testExpression = "-4*3+8/(7-3)";
-        //String testExpression = "(4*32)+8";
-        LinkedList<String> testTokens = testTokenizer.splitIntoTokens(testExpression);
-        System.out.println(testTokens);
-        ArithmeticExpressionParser parser = new ArithmeticExpressionParser();
-        try {
-            parser.parseAndEvaluate(testTokens);
-        } catch (InvalidExpressionException e) {
-            System.out.println(e.getMessage());
-        }
-        
-        
-        System.out.println(testTokens);
-       
    }
 }

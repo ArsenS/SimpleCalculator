@@ -21,14 +21,4 @@ public class Tokenizer {
         String[] tokens = arithmeticExpression.split("(?<=\\d)(?=\\D)|(?<=\\D)(?=\\d)|(?<=\\D)(?=\\D)"); //regular expression to split the expression while keeping both numbers and operators as tokens
         return new LinkedList<String>(Arrays.asList(tokens));
     }
-    
-    public static void main(String[] args) {
-        
-        Tokenizer testTokenizer = new Tokenizer();
-        
-        String testExpression = "(4*2)+8/(543-665)";
-        LinkedList<String> testTokens = testTokenizer.splitIntoTokens(testExpression);
-        System.out.println(testTokens);
-
-    }
 }

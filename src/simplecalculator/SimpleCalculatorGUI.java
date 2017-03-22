@@ -19,202 +19,117 @@ import javafx.stage.Stage;
 
 public class SimpleCalculatorGUI extends Application {
     
+    
     private String inputText = "";
-    private static Tokenizer tokenizer;
-    private static ArithmeticExpressionParser parser;
+    private TextField expressionField;
     
-    private void updateInputText(String newChar) {
-        this.inputText += newChar;
-    }
-    
-    private void resetInputText() {
-        this.inputText = "";
-    }
+    private Tokenizer tokenizer;
+    private ArithmeticExpressionParser parser;
     
     @Override
     public void start(Stage primaryStage) {
         
         primaryStage.setTitle("Calculator");
         
+        GridPane grid = setupLayoutGrid();
+        
+        Scene scene = new Scene(grid, 280, 350);
+        scene.getStylesheets().add(SimpleCalculatorGUI.class.getResource("SimpleCalculatorGUI.css").toExternalForm());
+        primaryStage.setScene(scene);
+        
+        setupParserComponents();
+        setupExpressionField(grid);
+        setupGUIButtons(grid);
+        setupButtonsEventHandlers();
+        setupClearButtonEventHandler();
+        setupEqualButtonEventHandler();
+         
+        primaryStage.show();
+    }
+    
+    
+    private void updateInputText(String newValue) {
+        this.inputText += newValue;
+    }
+    
+    private void resetInputText() {
+        this.inputText = "";
+    }
+    
+    private void setupParserComponents() {
         tokenizer = new Tokenizer();
         parser = new ArithmeticExpressionParser();
-        
+    }
+    
+    private GridPane setupLayoutGrid() {
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(5);
         grid.setVgap(5);
         grid.setPadding(new Insets(10, 10, 10, 10));
-        
-        Scene scene = new Scene(grid, 280, 350);
-        primaryStage.setScene(scene);
-        scene.getStylesheets().add(SimpleCalculator.class.getResource("SimpleCalculator.css").toExternalForm());
-        
-        TextField expressionField = new TextField();
+        return grid;
+    }
+    
+    private void setupExpressionField(GridPane grid) {
+        expressionField = new TextField();
         expressionField.setEditable(false);
         grid.add(expressionField, 0, 0, 5, 1);
-        Button clearBtn = new Button("C");
-        grid.add(clearBtn, 6, 0);
-
-        Button num0Btn = new Button("0");
-        grid.add(num0Btn, 0, 4, 2, 1);
-        num0Btn.setId("zero");
-        Button num1Btn = new Button("1");
-        grid.add(num1Btn, 0, 3);
-        Button num2Btn = new Button("2");
-        grid.add(num2Btn, 1, 3);
-        Button num3Btn = new Button("3");
-        grid.add(num3Btn, 2, 3);
-        Button num4Btn = new Button("4");
-        grid.add(num4Btn, 0, 2);
-        Button num5Btn = new Button("5");
-        grid.add(num5Btn, 1, 2);
-        Button num6Btn = new Button("6");
-        grid.add(num6Btn, 2, 2);
-        Button num7Btn = new Button("7");
-        grid.add(num7Btn, 0, 1);
-        Button num8Btn = new Button("8");
-        grid.add(num8Btn, 1, 1);
-        Button num9Btn = new Button("9");
-        grid.add(num9Btn, 2, 1);
+    }
+    
+    private void setupGUIButtons(GridPane grid) {
+        buttons[0] = new Button("0");
+        grid.add(buttons[0], 1, 4);
+        buttons[1] = new Button("1");
+        grid.add(buttons[1], 0, 3);
+        buttons[2] = new Button("2");
+        grid.add(buttons[2], 1, 3);
+        buttons[3] = new Button("3");
+        grid.add(buttons[3], 2, 3);
+        buttons[4] = new Button("4");
+        grid.add(buttons[4], 0, 2);
+        buttons[5] = new Button("5");
+        grid.add(buttons[5], 1, 2);
+        buttons[6] = new Button("6");
+        grid.add(buttons[6], 2, 2);
+        buttons[7] = new Button("7");
+        grid.add(buttons[7], 0, 1);
+        buttons[8] = new Button("8");
+        grid.add(buttons[8], 1, 1);
+        buttons[9] = new Button("9");
+        grid.add(buttons[9], 2, 1);
+        buttons[10] = new Button(".");
+        grid.add(buttons[10], 0, 4);
         
-        Button divBtn = new Button("/");
-        grid.add(divBtn, 3, 1);
-        Button multBtn = new Button("*");
-        grid.add(multBtn, 3, 2);
-        Button subBtn = new Button("-");
-        grid.add(subBtn, 3, 3);
-        Button addBtn = new Button("+");
-        grid.add(addBtn, 3, 4);
-        Button equalBtn = new Button("=");
-        grid.add(equalBtn, 2, 4);
-        
-        num0Btn.setOnAction(new EventHandler<ActionEvent>() {
-            
-            @Override
-            public void handle(ActionEvent event) {
-                updateInputText("0");
-                expressionField.setText(inputText);
-            }
-        });
-        
-        num1Btn.setOnAction(new EventHandler<ActionEvent>() {
-            
-            @Override
-            public void handle(ActionEvent event) {
-                updateInputText("1");
-                expressionField.setText(inputText);
-            }
-        });
-        
-        num2Btn.setOnAction(new EventHandler<ActionEvent>() {
-            
-            @Override
-            public void handle(ActionEvent event) {
-                updateInputText("2");
-                expressionField.setText(inputText);
-            }
-        });
-        
-        num3Btn.setOnAction(new EventHandler<ActionEvent>() {
-            
-            @Override
-            public void handle(ActionEvent event) {
-                updateInputText("3");
-                expressionField.setText(inputText);
-            }
-        });
-        
-        num4Btn.setOnAction(new EventHandler<ActionEvent>() {
-            
-            @Override
-            public void handle(ActionEvent event) {
-                updateInputText("4");
-                expressionField.setText(inputText);
-            }
-        });
-        
-        num5Btn.setOnAction(new EventHandler<ActionEvent>() {
-            
-            @Override
-            public void handle(ActionEvent event) {
-                updateInputText("5");
-                expressionField.setText(inputText);
-            }
-        });
-        
-        num6Btn.setOnAction(new EventHandler<ActionEvent>() {
-            
-            @Override
-            public void handle(ActionEvent event) {
-                updateInputText("6");
-                expressionField.setText(inputText);
-            }
-        });
-        
-        num7Btn.setOnAction(new EventHandler<ActionEvent>() {
-            
-            @Override
-            public void handle(ActionEvent event) {
-                updateInputText("7");
-                expressionField.setText(inputText);
-            }
-        });
-        
-        num8Btn.setOnAction(new EventHandler<ActionEvent>() {
-            
-            @Override
-            public void handle(ActionEvent event) {
-                updateInputText("8");
-                expressionField.setText(inputText);
-            }
-        });
-        
-        num9Btn.setOnAction(new EventHandler<ActionEvent>() {
-            
-            @Override
-            public void handle(ActionEvent event) {
-                updateInputText("9");
-                expressionField.setText(inputText);
-            }
-        });
-        
-        divBtn.setOnAction(new EventHandler<ActionEvent>() {
-            
-            @Override
-            public void handle(ActionEvent event) {
-                updateInputText("/");
-                expressionField.setText(inputText);
-            }
-        });
-        
-        multBtn.setOnAction(new EventHandler<ActionEvent>() {
-            
-            @Override
-            public void handle(ActionEvent event) {
-                updateInputText("*");
-                expressionField.setText(inputText);
-            }
-        });
-        
-        subBtn.setOnAction(new EventHandler<ActionEvent>() {
-            
-            @Override
-            public void handle(ActionEvent event) {
-                updateInputText("-");
-                expressionField.setText(inputText);
-            }
-        });
-        
-        addBtn.setOnAction(new EventHandler<ActionEvent>() {
-            
-            @Override
-            public void handle(ActionEvent event) {
-                updateInputText("+");
-                expressionField.setText(inputText);
-            }
-        });
-        
-        clearBtn.setOnAction(new EventHandler<ActionEvent>() {
+        buttons[11] = new Button("/");
+        grid.add(buttons[11], 3, 1);
+        buttons[12] = new Button("*");
+        grid.add(buttons[12], 3, 2);
+        buttons[13] = new Button("-");
+        grid.add(buttons[13], 3, 3);
+        buttons[14] = new Button("+");
+        grid.add(buttons[14], 3, 4);
+        buttons[15] = new Button("=");
+        grid.add(buttons[15], 2, 4);
+        buttons[16] = new Button("C");
+        grid.add(buttons[16], 6, 0);
+    }
+    
+    private void setupButtonsEventHandlers() {
+        for (Button button: buttons) {         
+           
+            button.setOnAction(new EventHandler<ActionEvent>() {
+                
+                @Override
+                public void handle(ActionEvent event) {
+                    updateInputText(button.getText());
+                    expressionField.setText(inputText);
+                }
+            });
+        }
+    }
+    
+    private void setupClearButtonEventHandler() {
+        buttons[16].setOnAction(new EventHandler<ActionEvent>() {
             
             @Override
             public void handle(ActionEvent event) {
@@ -222,8 +137,10 @@ public class SimpleCalculatorGUI extends Application {
                 expressionField.setText(inputText);
             }
         });
-                
-        equalBtn.setOnAction(new EventHandler<ActionEvent>() {
+    }
+    
+    private void setupEqualButtonEventHandler() {
+        buttons[15].setOnAction(new EventHandler<ActionEvent>() {
             
             @Override
             public void handle(ActionEvent event) {
@@ -231,18 +148,18 @@ public class SimpleCalculatorGUI extends Application {
                 String arithmeticExpression = expressionField.getText();
                 try {
                     double value = parser.parseAndEvaluate(tokenizer.splitIntoTokens(arithmeticExpression));
-                    inputText = Double.toString(value);
+                    
+                    if (value % 1 == 0.0) {
+                        inputText = Integer.toString((int)value);
+                    } else {
+                        inputText = Double.toString(value);
+                    }
                     expressionField.setText(inputText);
                 } catch (InvalidExpressionException e) {
-                    expressionField.setText("error");
+                    expressionField.setText("Error");
                 }
-                
             }
         });
-        
-        primaryStage.show();
-        
-
     }
     
     /**
