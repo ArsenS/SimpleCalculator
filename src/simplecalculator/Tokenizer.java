@@ -11,8 +11,6 @@ import java.util.LinkedList;
 
 public class Tokenizer {
     
-    private static Tokenizer tokenizer;
-    
     public Tokenizer() {}
     
     LinkedList<String> splitIntoTokens(String arithmeticExpression) {
