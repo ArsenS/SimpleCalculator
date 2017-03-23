@@ -19,9 +19,9 @@ import javafx.stage.Stage;
 
 public class SimpleCalculatorGUI extends Application {
     
-    
-    private String inputText = "";
     private TextField expressionField;
+    private String inputText = "";
+    private final Button[] buttons = new Button[19];
     
     private Tokenizer tokenizer;
     private ArithmeticExpressionParser parser;
@@ -37,28 +37,14 @@ public class SimpleCalculatorGUI extends Application {
         scene.getStylesheets().add(SimpleCalculatorGUI.class.getResource("SimpleCalculatorGUI.css").toExternalForm());
         primaryStage.setScene(scene);
         
-        setupParserComponents();
+        instantiateParserComponents();
         setupExpressionField(grid);
         setupGUIButtons(grid);
-        setupButtonsEventHandlers();
+        setupMainButtonsEventHandlers();
         setupClearButtonEventHandler();
-        setupEqualButtonEventHandler();
+        setupEqualsButtonEventHandler();
          
         primaryStage.show();
-    }
-    
-    
-    private void updateInputText(String newValue) {
-        this.inputText += newValue;
-    }
-    
-    private void resetInputText() {
-        this.inputText = "";
-    }
-    
-    private void setupParserComponents() {
-        tokenizer = new Tokenizer();
-        parser = new ArithmeticExpressionParser();
     }
     
     private GridPane setupLayoutGrid() {
@@ -70,6 +56,11 @@ public class SimpleCalculatorGUI extends Application {
         return grid;
     }
     
+    private void instantiateParserComponents() {
+        tokenizer = new Tokenizer();
+        parser = new ArithmeticExpressionParser();
+    }
+    
     private void setupExpressionField(GridPane grid) {
         expressionField = new TextField();
         expressionField.setEditable(false);
@@ -77,59 +68,47 @@ public class SimpleCalculatorGUI extends Application {
     }
     
     private void setupGUIButtons(GridPane grid) {
-        buttons[0] = new Button("0");
-        grid.add(buttons[0], 1, 4);
-        buttons[1] = new Button("1");
-        grid.add(buttons[1], 0, 3);
-        buttons[2] = new Button("2");
-        grid.add(buttons[2], 1, 3);
-        buttons[3] = new Button("3");
-        grid.add(buttons[3], 2, 3);
-        buttons[4] = new Button("4");
-        grid.add(buttons[4], 0, 2);
-        buttons[5] = new Button("5");
-        grid.add(buttons[5], 1, 2);
-        buttons[6] = new Button("6");
-        grid.add(buttons[6], 2, 2);
-        buttons[7] = new Button("7");
-        grid.add(buttons[7], 0, 1);
-        buttons[8] = new Button("8");
-        grid.add(buttons[8], 1, 1);
-        buttons[9] = new Button("9");
-        grid.add(buttons[9], 2, 1);
-        buttons[10] = new Button(".");
-        grid.add(buttons[10], 0, 4);
         
-        buttons[11] = new Button("/");
-        grid.add(buttons[11], 3, 1);
-        buttons[12] = new Button("*");
-        grid.add(buttons[12], 3, 2);
-        buttons[13] = new Button("-");
-        grid.add(buttons[13], 3, 3);
-        buttons[14] = new Button("+");
-        grid.add(buttons[14], 3, 4);
-        buttons[15] = new Button("=");
-        grid.add(buttons[15], 2, 4);
-        buttons[16] = new Button("C");
-        grid.add(buttons[16], 6, 0);
+        String[][] buttonLabels = { {"C", "(", ")", "/"},
+                                    {"7", "8", "9", "*"},
+                                    {"4", "5", "6", "+"},
+                                    {"1", "2", "3", "-"},
+                                    {".", "0", "="} };
+        
+        int currentButton = 0;       
+        for (int i = 0; i < buttonLabels.length; i++) {
+            for (int j = 0; j < buttonLabels[i].length; j++) {
+                buttons[currentButton] = new Button(buttonLabels[i][j]);
+                grid.add(buttons[currentButton], j, i+1);
+                currentButton++;                
+            }
+        }
+        
+        //setup for CSS
+        buttons[0].setId("clear");
+        buttons[buttons.length-1].setId("equals");
+        grid.setColumnSpan(buttons[buttons.length-1], 2); 
     }
     
-    private void setupButtonsEventHandlers() {
-        for (Button button: buttons) {         
+    private void setupMainButtonsEventHandlers() {
+        for (Button button: buttons) {     
            
-            button.setOnAction(new EventHandler<ActionEvent>() {
-                
-                @Override
-                public void handle(ActionEvent event) {
-                    updateInputText(button.getText());
-                    expressionField.setText(inputText);
-                }
-            });
+            String buttonText = button.getText();
+            if (!buttonText.equals("C") && !buttonText.equals("=")) {
+                button.setOnAction(new EventHandler<ActionEvent>() {
+
+                    @Override
+                    public void handle(ActionEvent event) {
+                        updateInputText(button.getText());
+                        expressionField.setText(inputText);
+                    }
+                });
+            }
         }
     }
     
     private void setupClearButtonEventHandler() {
-        buttons[16].setOnAction(new EventHandler<ActionEvent>() {
+        buttons[0].setOnAction(new EventHandler<ActionEvent>() {
             
             @Override
             public void handle(ActionEvent event) {
@@ -138,28 +117,47 @@ public class SimpleCalculatorGUI extends Application {
             }
         });
     }
-    
-    private void setupEqualButtonEventHandler() {
-        buttons[15].setOnAction(new EventHandler<ActionEvent>() {
+       
+    private void setupEqualsButtonEventHandler() {
+        buttons[18].setOnAction(new EventHandler<ActionEvent>() {
             
             @Override
             public void handle(ActionEvent event) {
-                
                 String arithmeticExpression = expressionField.getText();
-                try {
-                    double value = parser.parseAndEvaluate(tokenizer.splitIntoTokens(arithmeticExpression));
-                    
-                    if (value % 1 == 0.0) {
-                        inputText = Integer.toString((int)value);
-                    } else {
-                        inputText = Double.toString(value);
-                    }
-                    expressionField.setText(inputText);
-                } catch (InvalidExpressionException e) {
-                    expressionField.setText("Error");
+                if (!arithmeticExpression.equals("")) {
+                    evaluateAndDisplay(arithmeticExpression);
                 }
             }
         });
+    }
+    
+    private void evaluateAndDisplay(String expression) {
+        try {
+            double value = parser.parseAndEvaluate(tokenizer.splitIntoTokens(expression));    
+            this.inputText = trimDecimalIfInteger(value);
+            this.expressionField.setText(inputText);
+        } catch (InvalidExpressionException e) {
+            this.expressionField.setText("Error");
+            resetInputText();
+        }
+    }
+    
+    private String trimDecimalIfInteger(double value) {
+        String val;
+        if (value % 1 == 0.0) {
+            val = Integer.toString((int)value);
+        } else {
+            val = Double.toString(value);
+        }
+        return val;
+    }
+    
+    private void updateInputText(String newValue) {
+        this.inputText += newValue;
+    }
+    
+    private void resetInputText() {
+        this.inputText = "";
     }
     
     /**
