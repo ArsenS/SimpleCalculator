@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package simplecalculator;
 
 import javafx.application.Application;
@@ -50,8 +45,8 @@ public class SimpleCalculatorGUI extends Application {
     private GridPane setupLayoutGrid() {
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
-        grid.setHgap(5);
-        grid.setVgap(5);
+        //grid.setHgap(5);
+        //grid.setVgap(5);
         grid.setPadding(new Insets(10, 10, 10, 10));
         return grid;
     }
